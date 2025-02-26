@@ -116,3 +116,12 @@ form{
   margin-left: 10px;
   margin-right: 80%;
 }
+
+input[type="submit"]:hover {
+background-color: #443627;
+}
+
+input[type="text"] {
+  border-radius: 10%;
+  background-color: #443627;
+  }
