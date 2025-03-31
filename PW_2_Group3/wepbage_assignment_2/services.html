@@ -24,51 +24,64 @@
                             <a class="nav-link" href="about.html">About</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="services.html">Services</a>
+                            <a class="nav-link" href="services.html">Services</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="contact.html">Contact</a>
+                            <a class="nav-link active" href="contact.html">Contact</a>
                         </li>
                     </ul>
                 </div>
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="btn btn-outline-dark">🌙 Dark Mode</button>
             </div>
         </nav>
+        
 
         <div class="container-fluid mt-4">
-            <div class="row">
-                <div class="col-12 col-md-4 mb-4">
+            <!-- Filter Dropdown -->
+            <div class="mb-4">
+                <label for="serviceFilter" class="form-label">Filter Services</label>
+                <select id="serviceFilter" class="form-select">
+                    <option value="">All</option>
+                    <option value="video">Video Services</option>
+                    <option value="audio">Audio Services</option>
+                </select>
+            </div>
+        
+            <!-- Service Cards -->
+            <div class="row" id="serviceList">
+                <div class="col-12 col-md-4 mb-4" data-category="video">
                     <div class="card h-100">
                         <img src="images/youtube.svg" class="card-img-top" alt="YouTube Logo">
                         <div class="card-body">
                             <h5 class="card-title">YouTube</h5>
-                            <p class="card-text">YouTube is an American social media and online video
-                                sharing platform owned by Google..</p>
+                            <p class="card-text">YouTube is an American social media and online video sharing platform owned by Google.</p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="col-12 col-md-4 mb-4">
+                        
+                <div class="col-12 col-md-4 mb-4" data-category="audio">
                     <div class="card h-100">
                         <img src="images/spotify.png" class="card-img-top" alt="Spotify Logo">
                         <div class="card-body">
                             <h5 class="card-title">Spotify</h5>
-                            <p class="card-text">Spotify is a Swedish audio streaming and media service provider</p>
+                            <p class="card-text">Spotify is a Swedish audio streaming and media service provider.</p>
                         </div>
                     </div>
                 </div>
         
-                <div class="col-12 col-md-4 mb-4">
+                <div class="col-12 col-md-4 mb-4" data-category="video">
                     <div class="card h-100">
                         <img src="images/twitch.png" class="card-img-top" alt="Twitch Logo">
                         <div class="card-body">
                             <h5 class="card-title">Twitch</h5>
-                            <p class="card-text">Twitch is an American video live-streaming service popular in video games,
-                                    including broadcasts of esports competitions.</p>
+                            <p class="card-text">Twitch is an American video live-streaming service popular in video games, including broadcasts of esports competitions.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
     </body>
     <script src="/js/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

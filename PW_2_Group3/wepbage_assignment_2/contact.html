@@ -28,33 +28,41 @@
                         </li>
                     </ul>
                 </div>
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="btn btn-outline-dark">🌙 Dark Mode</button>
             </div>
         </nav>
-
+        
 
         <div class="container d-flex flex-column align-items-center mt-5">
             <h1 class="text-center">Contact Us!</h1>
             <div class="col-md-6">
-                <form action="contacted.html" method="post" class="p-4 border rounded shadow">
+                <!-- Validation Alert (Initially Hidden) -->
+                <div id="validationAlert" class="alert alert-danger d-none" role="alert">
+                    Please fill in all fields correctly.
+                </div>
+                
+                <form id="contactForm" action="contacted.html" method="post" class="p-4 border rounded shadow">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input id="email" name="email" type="email" class="form-control" placeholder="Your Email" required>
                     </div>
-
+        
                     <div class="mb-3">
                         <label for="name" class="form-label">Full Name</label>
                         <input id="name" name="name" type="text" class="form-control" placeholder="Your Full Name" required>
                     </div>
-
+        
                     <div class="mb-3">
                         <label for="reason" class="form-label">Reason for Contact</label>
                         <input id="reason" name="reason" type="text" class="form-control" placeholder="Why are you contacting us?" required>
                     </div>
-
+        
                     <button type="submit" class="btn btn-primary w-100">Send</button>
                 </form>
             </div>
         </div>
+        
 
         <div>
             <h1 class="header1">Our Information</h1>
