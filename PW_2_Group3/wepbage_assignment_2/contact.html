@@ -31,10 +31,11 @@
             </div>
         </nav>
 
-        <div>
-            <h1 class="header1">Contact Us!</h1>
-            <div class="contact">
-                <form action="contacted.html" method="post">
+
+        <div class="container d-flex flex-column align-items-center mt-5">
+            <h1 class="text-center">Contact Us!</h1>
+            <div class="col-md-6">
+                <form action="contacted.html" method="post" class="p-4 border rounded shadow">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input id="email" name="email" type="email" class="form-control" placeholder="Your Email" required>
@@ -50,7 +51,7 @@
                         <input id="reason" name="reason" type="text" class="form-control" placeholder="Why are you contacting us?" required>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Send</button>
+                    <button type="submit" class="btn btn-primary w-100">Send</button>
                 </form>
             </div>
         </div>
