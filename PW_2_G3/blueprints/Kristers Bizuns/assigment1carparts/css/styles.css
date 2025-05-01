@@ -1,0 +1,127 @@
+.column {
+    float: left;
+    width: 32%;
+    padding: 10px;
+    align-items: center;
+    height: fit-content;
+    margin-bottom: 20px;
+    background-color: #F2F6D0;
+    gap: 10px;
+    display: block;
+
+  }
+
+  header {
+    background-color: #443627;
+    font-size: 30px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
+
+  body {
+    background-color: #D98324;
+  }
+
+  footer {
+    background-color: #443627;
+    color: white;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+
+  }
+
+  a {
+    color: #EFDCAB;
+    padding-left: 10px;
+    text-decoration: none;
+  }
+
+  a:hover{
+    background-color: #D98324;
+  }
+
+  h1 {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 30px;
+    font-family: sans-serif;
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 25px;
+    font-family: sans-serif;
+  }
+
+  p {
+    text-align: center;
+    font-size: 20px;
+    font-family: sans-serif;
+  }
+
+  button {
+    margin-left: 47%;
+    background-color: #D98324;
+  }
+
+  button:hover{
+    border: 3px solid, #443627;
+  }
+
+  #hero {
+    background-image: linear-gradient(to right, #D98324 , #443627);
+  }
+
+  section {
+    display: block;
+  }
+
+  img{
+    width: 200px;
+    height: 300px;
+  }
+ #contacts {
+  text-align: left;
+ }
+
+form{
+  border: 3px, solid, black;
+  padding: 15px;
+  align-items: center;
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 20px;
+  margin-left: 33%;
+  margin-right: 33%;
+
+}
+
+#message {
+  width: 30%;
+  height: 50px;
+}
+
+#contact{
+  text-align: center;
+  margin-left: 10px;
+}
+
+#contacts {
+  text-align: left;
+  border: 3px, solid, black;
+  margin-left: 10px;
+  margin-right: 80%;
+}
+
+input[type="submit"]:hover {
+background-color: #443627;
+}
+
+input[type="text"] {
+  border-radius: 10%;
+  background-color: #443627;
+  }
