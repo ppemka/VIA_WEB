@@ -29,13 +29,21 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Services</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <body>
 
 <?php include 'includes/header.php'; ?>
 
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Our Services</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Our Services</h1>
+        <?php if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true): ?>
+            <a href="add_service.php" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Add New Service
+            </a>
+        <?php endif; ?>
+    </div>
     
     <!-- Search Bar -->
     <div class="row mb-4 justify-content-center">
@@ -70,6 +78,19 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                             <h5 class="card-title"><?php echo $title; ?></h5>
                             <p class="card-text"><?php echo $description; ?></p>
                         </div>
+                        <?php if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true): ?>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex justify-content-end">
+                                <a href="edit_service.php?id=<?php echo $id; ?>" class="btn btn-sm btn-primary me-2">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <a href="delete_service.php?id=<?php echo $id; ?>" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Are you sure you want to delete this service?');">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
         <?php

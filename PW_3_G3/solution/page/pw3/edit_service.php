@@ -1,8 +1,8 @@
 <?php
-// Initialize the session
+// Start session
 session_start();
 
-// Check if the user is logged in, if not then redirect to login page
+// Check if the user is logged in, if not redirect to login page
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: login.php");
     exit;
@@ -17,39 +17,34 @@ require_once 'classes/Service.php';
 // Create service object
 $service = new Service($db);
 
-// Define variables and initialize with empty values
+// Initialize variables
 $title = $description = $image = "";
 $title_err = $description_err = $image_err = "";
 $success_message = $error_message = "";
 $current_image = "";
 
-// Processing data when ID is passed
-if (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
-    // Get service ID
-    $id = trim($_GET["id"]);
-    
-    // Get service details
-    if ($service->readOne($id)) {
-        // Retrieve service data
-        $title = $service->title;
-        $description = $service->description;
-        $current_image = $service->image;
-    } else {
-        // Service not found
-        header("location: dashboard.php");
-        exit();
-    }
-} else {
-    // No ID provided
-    header("location: dashboard.php");
-    exit();
+// Check if service ID is provided
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    header("location: services.php");
+    exit;
 }
 
-// Processing form data when form is submitted
+// Get service ID
+$service->id = $_GET['id'];
+
+// Read service details
+if (!$service->readOne()) {
+    header("location: services.php");
+    exit;
+}
+
+// Set current values
+$title = $service->title;
+$description = $service->description;
+$current_image = $service->image;
+
+// Process form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
-    // Get ID from form
-    $id = $_POST["id"];
     
     // Validate title
     if (empty(trim($_POST["title"]))) {
@@ -65,59 +60,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $description = trim($_POST["description"]);
     }
     
-    // Handle image upload (if a new image is uploaded)
-    if (isset($_FILES["image"]) && $_FILES["image"]["error"] == 0) {
-        $allowed = ["jpg" => "image/jpg", "jpeg" => "image/jpeg", "gif" => "image/gif", "png" => "image/png"];
-        $filename = $_FILES["image"]["name"];
-        $filetype = $_FILES["image"]["type"];
-        $filesize = $_FILES["image"]["size"];
+    // Handle image upload
+    if (!empty($_FILES["image"]["name"])) {
+        $target_dir = "uploads/";
+        $file_extension = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
+        $new_filename = uniqid() . '.' . $file_extension;
+        $target_file = $target_dir . $new_filename;
         
-        // Verify file extension
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        if (!array_key_exists($ext, $allowed)) {
-            $image_err = "Please select a valid file format (JPG, JPEG, PNG, GIF).";
+        // Check if image file is an actual image
+        $check = getimagesize($_FILES["image"]["tmp_name"]);
+        if ($check === false) {
+            $image_err = "File is not an image.";
         }
         
-        // Verify file size - 5MB maximum
-        $maxsize = 5 * 1024 * 1024;
-        if ($filesize > $maxsize) {
-            $image_err = "File size is larger than the allowed limit (5MB).";
+        // Check file size (max 5MB)
+        else if ($_FILES["image"]["size"] > 5000000) {
+            $image_err = "File is too large. Max 5MB.";
         }
         
-        // Verify MIME type of the file
-        if (in_array($filetype, $allowed)) {
-            // Check if uploads directory exists, create if not
-            if (!file_exists("uploads")) {
-                mkdir("uploads", 0777, true);
-            }
-            
-            // Create a unique filename to prevent overwriting
-            $new_filename = uniqid() . "." . $ext;
-            
-            // Move the uploaded file to the uploads directory
-            if (empty($image_err) && move_uploaded_file($_FILES["image"]["tmp_name"], "uploads/" . $new_filename)) {
-                // If there was an existing image, delete it
+        // Allow only certain file formats
+        else if (!in_array($file_extension, ["jpg", "jpeg", "png", "gif"])) {
+            $image_err = "Only JPG, JPEG, PNG & GIF files are allowed.";
+        }
+        
+        // If no errors, try to upload the file
+        else {
+            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+                $image = $new_filename;
+                
+                // Delete old image if exists
                 if (!empty($current_image) && file_exists("uploads/" . $current_image)) {
                     unlink("uploads/" . $current_image);
                 }
-                $image = $new_filename;
             } else {
-                $image_err = "Error uploading your file.";
+                $image_err = "Sorry, there was an error uploading your file.";
             }
-        } else {
-            $image_err = "There was a problem with your upload.";
         }
-    } else {
-        // No new image uploaded, keep the current one
-        $image = $current_image;
     }
     
     // Check input errors before updating in database
     if (empty($title_err) && empty($description_err) && empty($image_err)) {
-        // Update the service
-        if ($service->update($id, $title, $description, $image)) {
+        
+        // Set service properties
+        $service->title = $title;
+        $service->description = $description;
+        if (!empty($image)) {
+            $service->image = $image;
+        }
+        
+        // Update service
+        if ($service->update()) {
             $success_message = "Service updated successfully.";
-            $current_image = $image; // Update the current image for display
+            
+            // Update current_image for display
+            if (!empty($image)) {
+                $current_image = $image;
+            }
         } else {
             $error_message = "Something went wrong. Please try again later.";
         }
@@ -145,6 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <h2 class="text-center">Edit Service</h2>
                 </div>
                 <div class="card-body">
+                    <!-- Success/Error messages -->
                     <?php if (!empty($success_message)): ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <?php echo $success_message; ?>
@@ -159,41 +158,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                     <?php endif; ?>
                     
-                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="id" value="<?php echo $id; ?>">
-                        
-                        <div class="form-group mb-3">
-                            <label>Title</label>
-                            <input type="text" name="title" class="form-control <?php echo (!empty($title_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $title; ?>">
-                            <span class="invalid-feedback"><?php echo $title_err; ?></span>
+                    <!-- Edit Form -->
+                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?id=' . $service->id; ?>" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control <?php echo (!empty($title_err)) ? 'is-invalid' : ''; ?>" id="title" name="title" value="<?php echo $title; ?>">
+                            <div class="invalid-feedback"><?php echo $title_err; ?></div>
                         </div>
                         
-                        <div class="form-group mb-3">
-                            <label>Description</label>
-                            <textarea name="description" class="form-control <?php echo (!empty($description_err)) ? 'is-invalid' : ''; ?>" rows="5"><?php echo $description; ?></textarea>
-                            <span class="invalid-feedback"><?php echo $description_err; ?></span>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control <?php echo (!empty($description_err)) ? 'is-invalid' : ''; ?>" id="description" name="description" rows="5"><?php echo $description; ?></textarea>
+                            <div class="invalid-feedback"><?php echo $description_err; ?></div>
                         </div>
                         
-                        <div class="form-group mb-3">
-                            <label>Current Image</label>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Image</label>
                             <?php if (!empty($current_image) && file_exists("uploads/" . $current_image)): ?>
                                 <div class="mb-2">
-                                    <img src="uploads/<?php echo $current_image; ?>" alt="Current Image" class="img-thumbnail" width="200">
+                                    <img src="uploads/<?php echo $current_image; ?>" alt="Current Image" class="img-thumbnail" style="max-height: 200px;">
+                                    <p class="text-muted">Current image</p>
                                 </div>
-                            <?php else: ?>
-                                <p>No image available</p>
                             <?php endif; ?>
+                            <input type="file" class="form-control <?php echo (!empty($image_err)) ? 'is-invalid' : ''; ?>" id="image" name="image">
+                            <div class="invalid-feedback"><?php echo $image_err; ?></div>
+                            <div class="form-text">Leave empty to keep current image. Only JPG, JPEG, PNG & GIF files (max 5MB).</div>
                         </div>
                         
-                        <div class="form-group mb-3">
-                            <label>New Image (leave empty to keep current image)</label>
-                            <input type="file" name="image" class="form-control <?php echo (!empty($image_err)) ? 'is-invalid' : ''; ?>">
-                            <span class="invalid-feedback"><?php echo $image_err; ?></span>
-                        </div>
-                        
-                        <div class="form-group d-flex justify-content-between">
-                            <a href="dashboard.php" class="btn btn-secondary">Cancel</a>
-                            <input type="submit" class="btn btn-primary" value="Update">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="services.php" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Service</button>
                         </div>
                     </form>
                 </div>

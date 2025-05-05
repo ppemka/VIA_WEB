@@ -1,8 +1,4 @@
 <?php
-/**
- * Service Class
- * Handles CRUD operations for service entities
- */
 class Service {
     // Database connection and table name
     private $conn;
@@ -14,33 +10,65 @@ class Service {
     public $description;
     public $image;
     
-    /**
-     * Constructor with $db as database connection
-     * @param PDO $db
-     */
+    // Constructor with $db as database connection
     public function __construct($db) {
         $this->conn = $db;
     }
     
-    /**
-     * Create a new service
-     * @param string $title
-     * @param string $desc
-     * @param string $img
-     * @return bool
-     */
-    public function create($title, $desc, $img) {
-        // Sanitize inputs
-        $this->title = htmlspecialchars(strip_tags($title));
-        $this->description = htmlspecialchars(strip_tags($desc));
-        $this->image = htmlspecialchars(strip_tags($img));
-        
-        // Insert query
-        $query = "INSERT INTO " . $this->table_name . " 
-                  SET title=:title, description=:description, image=:image";
+    // Read all services
+    public function readAll() {
+        // Select all query
+        $query = "SELECT id, title, description, image FROM " . $this->table_name . " ORDER BY id DESC";
         
         // Prepare statement
         $stmt = $this->conn->prepare($query);
+        
+        // Execute query
+        $stmt->execute();
+        
+        return $stmt;
+    }
+    
+    // Read one service
+    public function readOne() {
+        // Query to read single record
+        $query = "SELECT id, title, description, image FROM " . $this->table_name . " WHERE id = ? LIMIT 0,1";
+        
+        // Prepare statement
+        $stmt = $this->conn->prepare($query);
+        
+        // Bind ID of service to be updated
+        $stmt->bindParam(1, $this->id);
+        
+        // Execute query
+        $stmt->execute();
+        
+        // Fetch row
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Set properties
+        if($row) {
+            $this->title = $row['title'];
+            $this->description = $row['description'];
+            $this->image = $row['image'];
+            return true;
+        }
+        
+        return false;
+    }
+    
+    // Create service
+    public function create() {
+        // Query to insert record
+        $query = "INSERT INTO " . $this->table_name . " SET title=:title, description=:description, image=:image";
+        
+        // Prepare statement
+        $stmt = $this->conn->prepare($query);
+        
+        // Sanitize
+        $this->title = htmlspecialchars(strip_tags($this->title));
+        $this->description = htmlspecialchars(strip_tags($this->description));
+        $this->image = htmlspecialchars(strip_tags($this->image));
         
         // Bind values
         $stmt->bindParam(":title", $this->title);
@@ -55,105 +83,36 @@ class Service {
         return false;
     }
     
-    /**
-     * Read all services
-     * @return PDOStatement
-     */
-    public function readAll() {
-        // Select all query
-        $query = "SELECT id, title, description, image 
-                FROM " . $this->table_name . " 
-                ORDER BY id DESC";
+    // Update service
+    public function update() {
+        // Query to update record
+        $query = "UPDATE " . $this->table_name . " 
+                  SET title=:title, description=:description";
         
-        // Prepare statement
-        $stmt = $this->conn->prepare($query);
-        
-        // Execute query
-        $stmt->execute();
-        
-        return $stmt;
-    }
-    
-    /**
-     * Read single service
-     * @param int $id
-     * @return bool
-     */
-    public function readOne($id) {
-        // Query to read single record
-        $query = "SELECT id, title, description, image 
-                FROM " . $this->table_name . " 
-                WHERE id = ?
-                LIMIT 0,1";
-        
-        // Prepare statement
-        $stmt = $this->conn->prepare($query);
-        
-        // Bind id parameter
-        $stmt->bindParam(1, $id);
-        
-        // Execute query
-        $stmt->execute();
-        
-        // Get record
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Set values to object properties
-        if($row) {
-            $this->id = $row['id'];
-            $this->title = $row['title'];
-            $this->description = $row['description'];
-            $this->image = $row['image'];
-            return true;
+        // If image is provided, include it in the update
+        if(!empty($this->image)) {
+            $query .= ", image=:image";
         }
         
-        return false;
-    }
-    
-    /**
-     * Update service
-     * @param int $id
-     * @param string $title
-     * @param string $desc
-     * @param string|null $img
-     * @return bool
-     */
-    public function update($id, $title, $desc, $img = null) {
-        // Sanitize inputs
-        $this->id = htmlspecialchars(strip_tags($id));
-        $this->title = htmlspecialchars(strip_tags($title));
-        $this->description = htmlspecialchars(strip_tags($desc));
+        $query .= " WHERE id=:id";
         
-        // If image is provided
-        if($img) {
-            $this->image = htmlspecialchars(strip_tags($img));
-            
-            // Update query with image
-            $query = "UPDATE " . $this->table_name . " 
-                    SET title=:title, description=:description, image=:image 
-                    WHERE id=:id";
-            
-            // Prepare statement
-            $stmt = $this->conn->prepare($query);
-            
-            // Bind values
-            $stmt->bindParam(":title", $this->title);
-            $stmt->bindParam(":description", $this->description);
+        // Prepare statement
+        $stmt = $this->conn->prepare($query);
+        
+        // Sanitize
+        $this->title = htmlspecialchars(strip_tags($this->title));
+        $this->description = htmlspecialchars(strip_tags($this->description));
+        $this->id = htmlspecialchars(strip_tags($this->id));
+        
+        // Bind values
+        $stmt->bindParam(":title", $this->title);
+        $stmt->bindParam(":description", $this->description);
+        $stmt->bindParam(":id", $this->id);
+        
+        // Bind image if provided
+        if(!empty($this->image)) {
+            $this->image = htmlspecialchars(strip_tags($this->image));
             $stmt->bindParam(":image", $this->image);
-            $stmt->bindParam(":id", $this->id);
-        } else {
-            // Update query without image
-            $query = "UPDATE " . $this->table_name . " 
-                    SET title=:title, description=:description 
-                    WHERE id=:id";
-            
-            // Prepare statement
-            $stmt = $this->conn->prepare($query);
-            
-            // Bind values
-            $stmt->bindParam(":title", $this->title);
-            $stmt->bindParam(":description", $this->description);
-            $stmt->bindParam(":id", $this->id);
         }
         
         // Execute query
@@ -164,22 +123,18 @@ class Service {
         return false;
     }
     
-    /**
-     * Delete service
-     * @param int $id
-     * @return bool
-     */
-    public function delete($id) {
-        // Sanitize id
-        $this->id = htmlspecialchars(strip_tags($id));
-        
-        // Delete query
+    // Delete service
+    public function delete() {
+        // Query to delete record
         $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
         
         // Prepare statement
         $stmt = $this->conn->prepare($query);
         
-        // Bind id
+        // Sanitize
+        $this->id = htmlspecialchars(strip_tags($this->id));
+        
+        // Bind id of record to delete
         $stmt->bindParam(1, $this->id);
         
         // Execute query
@@ -190,28 +145,24 @@ class Service {
         return false;
     }
     
-    /**
-     * Search services by keyword
-     * @param string $keyword
-     * @return PDOStatement
-     */
-    public function search($keyword) {
+    // Search services
+    public function search($keywords) {
         // Sanitize
-        $keyword = htmlspecialchars(strip_tags($keyword));
-        $keyword = "%{$keyword}%";
+        $keywords = htmlspecialchars(strip_tags($keywords));
+        $keywords = "%{$keywords}%";
         
-        // Search query
+        // Query to search records
         $query = "SELECT id, title, description, image 
-                FROM " . $this->table_name . " 
-                WHERE title LIKE ? OR description LIKE ?
-                ORDER BY id DESC";
+                  FROM " . $this->table_name . " 
+                  WHERE title LIKE ? OR description LIKE ? 
+                  ORDER BY id DESC";
         
         // Prepare statement
         $stmt = $this->conn->prepare($query);
         
-        // Bind parameters
-        $stmt->bindParam(1, $keyword);
-        $stmt->bindParam(2, $keyword);
+        // Bind
+        $stmt->bindParam(1, $keywords);
+        $stmt->bindParam(2, $keywords);
         
         // Execute query
         $stmt->execute();
