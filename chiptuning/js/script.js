@@ -12,17 +12,31 @@ function updateAuthUI() {
     const authButtons = document.getElementById('authButtons');
     const userButtons = document.getElementById('userButtons');
     const welcomeUser = document.getElementById('welcomeUser');
+    
+    // Create or select the admin button
+    let adminButton = document.getElementById('adminPanelBtn');
+    if (!adminButton) {
+        adminButton = document.createElement('a');
+        adminButton.id = 'adminPanelBtn';
+        adminButton.href = 'admin.html';
+        adminButton.className = 'btn btn-primary';
+        adminButton.textContent = 'Admin Panel';
+        userButtons.appendChild(adminButton);
+    }
 
     if (currentUser) {
         authButtons.style.display = 'none';
         userButtons.style.display = 'flex';
-        welcomeUser.textContent = `Welcome, ${currentUser.name}`;
+        welcomeUser.textContent = `Welcome back, ${currentUser.name}`;
+        adminButton.style.display = 'inline-block';
     } else {
         authButtons.style.display = 'flex';
         userButtons.style.display = 'none';
         welcomeUser.textContent = '';
+        adminButton.style.display = 'none';
     }
 }
+
 
 async function logout() {
     try {
@@ -151,3 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAuthUI();
     checkSession();
 });
+
+  fetch('check_session.php')
+    .then(response => response.json())
+    .then(data => {
+      if (data.loggedin) {
+        document.getElementById('adminBtn').style.display = 'inline-block';
+      }
+    });
+
+
+  

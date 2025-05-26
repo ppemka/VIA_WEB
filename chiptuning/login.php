@@ -1,6 +1,8 @@
 <?php
 require_once 'config.php';
 
+session_start();
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
@@ -25,6 +27,11 @@ try {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
+        // Set session variables to keep user logged in
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_email'] = $user['email'];
+
         echo json_encode([
             'success' => true,
             'user' => [
@@ -39,4 +46,3 @@ try {
 } catch (PDOException $e) {
     echo json_encode(['error' => 'Login failed']);
 }
-?>

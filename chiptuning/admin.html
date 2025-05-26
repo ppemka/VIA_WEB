@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chip Tuning Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        .btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #e55a2e;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background: #ff6b35;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .alert {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chip Tuning Database</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="index.html" class="btn" style="text-decoration: none; background: #6c757d;">← Home</a>
+            <button id="addBtn" class="btn">Add New Entry</button>
+        </div>
+        
+        <div id="alertContainer"></div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Brand</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Engine</th>
+                    <th>ECU</th>
+                    <th>Original HP</th>
+                    <th>Stage 1 HP</th>
+                    <th>Stage 2 HP</th>
+                    <th>Original Torque</th>
+                    <th>Stage 1 Torque</th>
+                    <th>Stage 2 Torque</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="chipData">
+                <tr>
+                    <td colspan="13">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div id="chipModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Add Entry</h2>
+            
+            <div id="modalAlert"></div>
+            
+            <form id="chipForm">
+                <input type="hidden" id="chipId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="brand">Brand:</label>
+                        <input type="text" id="brand" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model:</label>
+                        <input type="text" id="model" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year:</label>
+                        <input type="number" id="year" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="engine">Engine:</label>
+                        <input type="text" id="engine" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ecu">ECU:</label>
+                        <input type="text" id="ecu" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="originalHp">Original HP:</label>
+                        <input type="number" id="originalHp">
+                    </div>
+                    <div class="form-group">
+                        <label for="stage1Hp">Stage 1 HP:</label>
+                        <input type="number" id="stage1Hp">
+                    </div>
+                    <div class="form-group">
+                        <label for="stage2Hp">Stage 2 HP:</label>
+                        <input type="number" id="stage2Hp">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="originalTorque">Original Torque:</label>
+                        <input type="number" id="originalTorque">
+                    </div>
+                    <div class="form-group">
+                        <label for="stage1Torque">Stage 1 Torque:</label>
+                        <input type="number" id="stage1Torque">
+                    </div>
+                    <div class="form-group">
+                        <label for="stage2Torque">Stage 2 Torque:</label>
+                        <input type="number" id="stage2Torque">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">Save</button>
+                <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('chipModal');
+        const closeBtn = document.querySelector('.close');
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadData);
+        
+        // Event listeners
+        document.getElementById('addBtn').addEventListener('click', () => openModal());
+        closeBtn.addEventListener('click', closeModal);
+        document.getElementById('chipForm').addEventListener('submit', saveEntry);
+        
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        
+        // Load data from API
+        async function loadData() {
+            try {
+                const response = await fetch('api.php?action=read');
+                const data = await response.json();
+                displayData(data);
+            } catch (error) {
+                showAlert('Error loading data: ' + error.message, 'error');
+            }
+        }
+        
+        // Display data in table
+        function displayData(data) {
+            const tbody = document.getElementById('chipData');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="13">No entries found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.map(row => `
+                <tr>
+                    <td>${row.id}</td>
+                    <td>${row.brand}</td>
+                    <td>${row.model}</td>
+                    <td>${row.year}</td>
+                    <td>${row.engine}</td>
+                    <td>${row.ecu}</td>
+                    <td>${row.original_hp || ''}</td>
+                    <td>${row.stage1_hp || ''}</td>
+                    <td>${row.stage2_hp || ''}</td>
+                    <td>${row.original_torque || ''}</td>
+                    <td>${row.stage1_torque || ''}</td>
+                    <td>${row.stage2_torque || ''}</td>
+                    <td>
+                        <button class="btn" onclick="editEntry(${row.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteEntry(${row.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Open modal
+        function openModal(data = null) {
+            if (data) {
+                document.getElementById('modalTitle').textContent = 'Edit Entry';
+                document.getElementById('chipId').value = data.id;
+                document.getElementById('brand').value = data.brand;
+                document.getElementById('model').value = data.model;
+                document.getElementById('year').value = data.year;
+                document.getElementById('engine').value = data.engine;
+                document.getElementById('ecu').value = data.ecu;
+                document.getElementById('originalHp').value = data.original_hp || '';
+                document.getElementById('stage1Hp').value = data.stage1_hp || '';
+                document.getElementById('stage2Hp').value = data.stage2_hp || '';
+                document.getElementById('originalTorque').value = data.original_torque || '';
+                document.getElementById('stage1Torque').value = data.stage1_torque || '';
+                document.getElementById('stage2Torque').value = data.stage2_torque || '';
+            } else {
+                document.getElementById('modalTitle').textContent = 'Add Entry';
+                document.getElementById('chipForm').reset();
+                document.getElementById('chipId').value = '';
+            }
+            
+            modal.style.display = 'block';
+            document.getElementById('modalAlert').innerHTML = '';
+        }
+        
+        // Close modal
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+        
+        // Save entry
+        async function saveEntry(e) {
+            e.preventDefault();
+            
+            const chipId = document.getElementById('chipId').value;
+            const isEdit = chipId !== '';
+            
+            const data = {
+                brand: document.getElementById('brand').value,
+                model: document.getElementById('model').value,
+                year: parseInt(document.getElementById('year').value),
+                engine: document.getElementById('engine').value,
+                ecu: document.getElementById('ecu').value,
+                original_hp: parseInt(document.getElementById('originalHp').value) || null,
+                stage1_hp: parseInt(document.getElementById('stage1Hp').value) || null,
+                stage2_hp: parseInt(document.getElementById('stage2Hp').value) || null,
+                original_torque: parseInt(document.getElementById('originalTorque').value) || null,
+                stage1_torque: parseInt(document.getElementById('stage1Torque').value) || null,
+                stage2_torque: parseInt(document.getElementById('stage2Torque').value) || null
+            };
+            
+            try {
+                const url = isEdit ? `api.php?action=update&id=${chipId}` : 'api.php?action=create';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeModal();
+                    loadData();
+                    showAlert(isEdit ? 'Entry updated successfully' : 'Entry created successfully', 'success');
+                } else {
+                    showAlert('modalAlert', result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('modalAlert', 'Error saving entry: ' + error.message, 'error');
+            }
+        }
+        
+        // Edit entry
+        async function editEntry(id) {
+            try {
+                const response = await fetch('api.php?action=read');
+                const data = await response.json();
+                const entry = data.find(item => item.id == id);
+                
+                if (entry) {
+                    openModal(entry);
+                }
+            } catch (error) {
+                showAlert('Error loading entry: ' + error.message, 'error');
+            }
+        }
+        
+        // Delete entry
+        async function deleteEntry(id) {
+            if (!confirm('Are you sure you want to delete this entry?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`api.php?action=delete&id=${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadData();
+                    showAlert('Entry deleted successfully', 'success');
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Error deleting entry: ' + error.message, 'error');
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type, containerId = 'alertContainer') {
+            const container = document.getElementById(containerId);
+            const alertClass = type === 'error' ? 'alert-error' : 'alert-success';
+            
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

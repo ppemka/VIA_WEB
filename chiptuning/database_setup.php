@@ -39,16 +39,24 @@ try {
     echo "<p>✓ Table 'users' created successfully</p>";
     
     // Create contact_messages table
-    $sql = "CREATE TABLE IF NOT EXISTS contact_messages (
+    // Create chip table
+    $sql = "CREATE TABLE IF NOT EXISTS chip (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        phone VARCHAR(20),
-        vehicle VARCHAR(255),
-        service VARCHAR(100),
-        message TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        brand VARCHAR(100) NOT NULL,
+        model VARCHAR(100) NOT NULL,
+        year INT NOT NULL,
+        engine VARCHAR(100) NOT NULL,
+        ecu VARCHAR(100) NOT NULL,
+        original_hp INT,
+        stage1_hp INT,
+        stage2_hp INT,
+        original_torque INT,
+        stage1_torque INT,
+        stage2_torque INT
     )";
+    $pdo->exec($sql);
+    echo "<p>✓ Table 'chip' created successfully</p>";
+
     $pdo->exec($sql);
     echo "<p>✓ Table 'contact_messages' created successfully</p>";
     
@@ -69,6 +77,13 @@ try {
     echo "<li>Check if MySQL is running on port 3306</li>";
     echo "<li>Verify the database credentials (username: root, password: empty by default)</li>";
     echo "</ul>";
+
+        echo "<ul>";
+    echo "<li>users (id, name, email, phone, password, created_at)</li>";
+    echo "<li>contact_messages (id, name, email, phone, vehicle, service, message, created_at)</li>";
+    echo "<li>chip (id, brand, model, year, engine, ecu, original_hp, stage1_hp, stage2_hp, original_torque, stage1_torque, stage2_torque)</li>";
+    echo "</ul>";
+
 }
 
 // Close connection
