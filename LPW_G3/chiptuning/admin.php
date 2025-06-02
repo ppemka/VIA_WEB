@@ -2,7 +2,7 @@
 require_once 'config.php';
 session_start();
 
-// Simple admin check (you can enhance this)
+// Simple admin check 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.html');
     exit;
